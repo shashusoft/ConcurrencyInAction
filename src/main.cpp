@@ -1,8 +1,9 @@
 #include <iostream>
 #include <thread>
 
-#define PAGE_NO_18 1
+#define PAGE_NO_18 0
 #define PAGE_NO_17 0
+#define PAGE_NO_20 1
 
 class ParallelFunctor
 {
@@ -72,15 +73,45 @@ void exceptionCall()
 	std::thread t(myFunc);
 	try
 	{
-		throw;
+		throw 0;
 	}
 	catch(std::exception& e)
 	{
 		std::cout << "exception occured " << e.what() << std::endl;
 		t.join();
+		throw;
 	}	
 	t.join();
 }
+
+void doSomebackgroundWork()
+{
+	std::cout << "doing nothing " << std::endl;
+}
+
+class ThreadGuard
+{
+public:
+	explicit ThreadGuard(std::thread& a_t)
+		: t(a_t)
+	{
+		std::cout << "Thread guard " << std::endl;
+	}
+
+	~ThreadGuard()
+	{
+		std::cout << "destructor von thread guard " << std::endl;
+		if (t.joinable())
+		{
+			t.join();
+		}
+	}
+
+	ThreadGuard(ThreadGuard const&) = delete;
+	ThreadGuard& operator=(ThreadGuard const&) = delete;
+private:
+	std::thread& t;
+};
 
 void parallelWorld()
 {
@@ -100,7 +131,12 @@ int main(int argc, char* argv[])
 	if(PAGE_NO_18) 
 	{
 		std::thread t3(exceptionCall);
-		t3.join();
+		ThreadGuard myGuard(t3);
+	}
+	if (PAGE_NO_20)
+	{
+		std::thread t4(doSomebackgroundWork);
+		if (t4.joinable()) t4.detach();
 	}
 }
 
