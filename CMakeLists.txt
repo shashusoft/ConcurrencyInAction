@@ -15,7 +15,7 @@ find_package(Threads REQUIRED)
 
 
 set(LIBS ${LIBS} Threads::Threads stdc++fs)
-add_executable(${PROJECT_NAME} ${sources} ${headers} src/main.cpp)
+add_executable(${PROJECT_NAME} ${sources} ${headers} src/ThreadWithParam.cpp)
 target_link_libraries(${PROJECT_NAME} ${LIBS})
 
 
